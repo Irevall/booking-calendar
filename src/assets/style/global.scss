@@ -1,0 +1,65 @@
+html {
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+
+  @include laptop {
+    font-size: 14px;
+  }
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+  display: inline-block;
+  color: inherit;
+}
+
+.container {
+  width: calc(100% - 4rem);
+  max-width: 1200px;
+  margin-left: auto !important;
+  margin-right: auto !important;
+
+  &--big {
+    max-width: 1600px;
+  }
+
+  &--small {
+    max-width: 890px;
+  }
+
+  @include laptop {
+    box-sizing: border-box;
+  }
+
+  @include mobile {
+    width: calc(100% - 2rem);
+  }
+}
+
+abbr {
+  text-decoration: underline;
+}
+
+table {
+  position: relative;
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+}
+
+thead > tr:last-child > th {
+  border-bottom: 1px solid var(--color-border);
+}
+
+tbody > tr:nth-child(2n) > td {
+  background: rgba(black, 0.05);
+}
+
+tbody > tr:hover > td {
+  background: rgba(black, 0.15);
+}
