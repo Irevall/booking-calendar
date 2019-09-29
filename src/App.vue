@@ -1,6 +1,9 @@
 <template>
   <div class="app">
-    <app-booking/>
+    <app-booking  :price-per-day="pricePerDay"
+                  :rating="rating"
+                  :available-dates="availableDates"
+    />
   </div>
 </template>
 
@@ -14,7 +17,7 @@
       return {
         pricePerDay: 257,
         rating: {
-          average: 3.85,
+          average: 4.35,
           amount: 128,
         },
         availableDates: [
@@ -62,5 +65,6 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    background: #ececec;
   }
 </style>

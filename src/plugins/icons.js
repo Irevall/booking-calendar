@@ -3,7 +3,9 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 import {
   faChevronLeft,
-  faChevronRight
+  faChevronRight,
+  faStar,
+  faAngleDoubleRight,
 } from '@fortawesome/free-solid-svg-icons'
 
 import {
@@ -18,6 +20,8 @@ const icons = [
   // fas
   faChevronLeft,
   faChevronRight,
+  faStar,
+  faAngleDoubleRight,
 
   // far
 
