@@ -4,7 +4,11 @@
 
     <div class="booking-view__separator"></div>
 
-    <booking-dates :available-dates="booking.availableDates" v-model="desiredDates"/>
+    <booking-dates
+      :available-dates="booking.availableDates"
+      v-model="desiredDates"
+      @new-dates="updateDates"
+    />
   </div>
 </template>
 
@@ -26,6 +30,13 @@
           checkIn: null,
           checkOut: null,
         },
+      }
+    },
+    methods: {
+      updateDates (input) {
+        const { checkIn, checkOut } = input
+        console.log(checkIn)
+        console.log(checkOut)
       }
     }
   }

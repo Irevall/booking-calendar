@@ -16,7 +16,7 @@
       </div>
 
       <div class="booking-calendar__list">
-        <calendar-day v-for="day in visibleDays" :key="day.dateUnix" v-bind="day"/>
+        <calendar-day v-for="day in visibleDays" :key="day.dateUnix" v-bind="day" @inner-click="registerDayClick(day)"/>
       </div>
     </div>
   </div>
@@ -32,6 +32,8 @@
     components: { CalendarDay },
     props: {
       availableDates: Array,
+      checkIn: Date,
+      checkOut: Date,
     },
     data () {
       return {
@@ -46,7 +48,6 @@
       // TODO: trim computed
       // TODO: props.availableDates. map to unix, so it's quicker to compare (just .includes())...
       // or rethink it, since compareDates is already pretty efficient, so for loop shouldn't take much longer?
-
 
       previousMonth () {
         return {
@@ -89,7 +90,9 @@
             dateUnix,
             isToday: compareDates(date, this.dateNow),
             isSameMonth: date.getMonth() === this.selected.month && date.getFullYear() === this.selected.year,
-            isAvailable: this.availableDatesInUnix.includes(dateUnix)
+            isAvailable: this.availableDatesInUnix.includes(dateUnix),
+            isCheck: compareDates(date, this.checkIn) || compareDates(date, this.checkOut),
+            isBetweenChecks: date > this.checkIn && date < this.checkOut
           })
         }
 
@@ -106,13 +109,10 @@
       selectNextMonth () {
         this.selected = this.nextMonth
       },
-      isToday (date) {
-        return compareDates(date, this.dateNow)
-      },
-      isSameMonth (date) {
-        console.log(date)
-        return date.getMonth() === this.selected.month
-            && date.getFullYear() === this.selected.year
+      registerDayClick (day) {
+        if (!day.isAvailable || !day.isSameMonth) return
+
+        this.$emit('select-date', day.date)
       }
     },
     created () {

@@ -1,9 +1,11 @@
 <template>
   <div class="calendar-day"
        :class="{  'calendar-day--today': isToday,
-                  'calendar-day--available': isAvailable,
-                  'calendar-day--current-month': isSameMonth
-              }">
+                  'calendar-day--unavailable': !isAvailable,
+                  'calendar-day--different-month': !isSameMonth
+              }"
+      @click="hijackClick"
+  >
     <div class="calendar-day__date">
       {{ date.getDate() }}
     </div>
@@ -19,7 +21,11 @@
       isToday: Boolean,
       isSameMonth: Boolean,
       isAvailable: Boolean,
-
+    },
+    methods: {
+      hijackClick () {
+        this.$emit('inner-click')
+      }
     }
   }
 </script>
@@ -28,19 +34,25 @@
   .calendar-day {
     @include flex-center;
     position: relative;
-    color: #5d5d5d;
+    color: black;
     width: 3rem;
     height: 3rem;
     box-sizing: border-box;
+    cursor: pointer;
 
     &--today {
       border-radius: 50%;
       border: 2px solid #00dbb1;
     }
 
-    &--current-month {
-      color: black;
-      cursor: pointer;
+    &--unavailable {
+      color: #b6b6b6;
+      cursor: default;
+    }
+
+    &--different-month {
+      color: #737373;
+      cursor: default;
     }
   }
 

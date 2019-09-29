@@ -2,13 +2,15 @@
   <div class="booking-dates">
     <span class="booking-dates__label">Dates</span>
     <div class="booking-dates__checked">
-      <span class="booking-dates__check booking-dates__check--in" :class="{ 'booking-dates__check--active': selected === 'in' }"
-            @click="select('in')">Check In</span>
+      <span class="booking-dates__check booking-dates__check--in" :class="{ 'booking-dates__check--active': selectedType === 'checkIn' }"
+            @click="selectType('checkIn')">Check In</span>
       <font-awesome-icon class="booking-dates__check-separator" icon="angle-double-right"/>
-      <span  class="booking-dates__check booking-dates__check--out" :class="{ 'booking-dates__check--active': selected === 'out' }"
-             @click="select('out')">Check Out</span>
+      <span  class="booking-dates__check booking-dates__check--out" :class="{ 'booking-dates__check--active': selectedType === 'checkOut' }"
+             @click="selectType('checkOut')">Check Out</span>
 
-      <booking-calendar class="booking-dates__calendar" :available-dates="availableDates" v-show="selected"/>
+      <booking-calendar class="booking-dates__calendar"
+                        :available-dates="availableDates" :check-in="$attrs.value.checkIn" :check-out="$attrs.value.checkOut"
+                        @select-date="applyDateSelection" v-show="selectedType"/>
     </div>
   </div>
 </template>
@@ -24,14 +26,20 @@
     },
     data () {
       return {
-        selected: false,
-        checkIn: this.$attrs.value.checkIn,
-        checkOut: this.$attrs.value.checkOut,
+        selectedType: false,
       }
     },
     methods: {
-      select (type) {
-        this.selected = type
+      selectType (type) {
+        this.selectedType = type
+      },
+      applyDateSelection (date) {
+        if (!this.checkIn || !this.checkOut) {
+          this.$emit('input', {
+            checkIn: date,
+            checkOut: date,
+          })
+        }
       }
     }
   }
