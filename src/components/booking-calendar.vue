@@ -1,33 +1,15 @@
 <template>
-  <div class="calendar">
-    <div class="calendar__header">
-      <div class="calendar__month-change calendar__month-change--previous" @click="selectPreviousMonth">
+  <div class="booking-calendar">
+    <div class="booking-calendar__header">
+      <div class="booking-calendar__month-change booking-calendar__month-change--previous" @click="selectPreviousMonth">
         <font-awesome-icon icon="chevron-left"/>
       </div>
-      <span class="calendar__current-month">{{ `${selectedMonthString} ${selected.year}` }}</span>
-      <div class="calendar__month-change calendar__month-change--next" @click="selectNextMonth">
+      <span class="booking-calendar__current-month">{{ `${selectedMonthString} ${selected.year}` }}</span>
+      <div class="booking-calendar__month-change booking-calendar__month-change--next" @click="selectNextMonth">
         <font-awesome-icon icon="chevron-right"/>
       </div>
-    </div>
 
-    <div class="calendar__days">
-      <div class="days__header">
-        <span class="days__day-name" v-for="day in shortDayNames" :key="day">{{ day }}</span>
-      </div>
-
-      <div class="days__day-list">
-        <div class="days__day-wrapper"
-             v-for="day in visibleDays" :key="day.getTime()"
-             :class="{  'days__day-wrapper--today': isToday(day),
-                        'days__day-wrapper--available': true,
-                        'days__day-wrapper--current-month': isSameMonth(day)
-              }">
-          <div class="days__day">
-            {{ day.getDate() }}
-          </div>
-
-        </div>
-      </div>
+      <calendar-dates/>
     </div>
   </div>
 </template>
@@ -35,16 +17,18 @@
 <script>
   import { dayNames, monthNames } from '@/resources/Date'
   import { compareDates } from '@/helpers/date'
+  import CalendarDates from '@/components/calendar/calendar-dates'
 
   export default {
-    name: 'app-calendar',
+    name: 'booking-calendar',
+    components: { CalendarDates },
     data () {
       return {
         dateNow: new Date(),
         selected: {
           year: null,
           month: null,
-        }
+        },
       }
     },
     computed: {
@@ -52,7 +36,7 @@
       // TODO: props.availableDates. map to unix, so it's quicker to compare (just .includes())...
       // or rethink it, since compareDates is already pretty efficient, so for loop shouldn't take much longer?
 
-      
+
       previousMonth () {
         return {
           year: this.selected.year - (this.selected.month ? 0 : 1),
@@ -83,10 +67,18 @@
       visibleDays () {
         const days = []
 
+        // TODO: explain/refactor loop
         for (let i = 1 - this.firstDayOfSelectedMonth.getDay();
           i <= this.selectedMonthLength + (6 - this.lastDayOfSelectedMonth.getDay());
           i++) {
-          days.push(new Date(this.selected.year, this.selected.month, i))
+          const date = new Date(this.selected.year, this.selected.month, i)
+          days.push({
+            date,
+            unix: date.getTime(),
+            isToday: compareDates(date, this.dateNow),
+            isSameMonth: date.getMonth() === this.selected.month && date.getFullYear() === this.selected.year,
+            isAvailable: true,
+          })
         }
 
         return days
@@ -116,7 +108,7 @@
 </script>
 
 <style lang=scss>
-  .calendar {
+  .booking-calendar {
     display: flex;
     flex-direction: column;
     min-width: 200px;
@@ -125,7 +117,7 @@
     user-select: none;
   }
 
-  .calendar__header {
+  .booking-calendar__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -134,56 +126,14 @@
     font-size: 1.5rem;
   }
 
-  .calendar__month-change {
+  .booking-calendar__month-change {
     display: flex;
     color: #4b4b4b;
     border-bottom: 1px solid #4b4b4b;
     cursor: pointer;
   }
 
-  .calendar__current-month {
+  .booking-calendar__current-month {
     color: white;
-  }
-
-  .calendar__days {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    grid-row-gap: 0.5rem;
-    padding: 1rem 1.5rem;
-  }
-
-  .days__day-name {
-    color: #808080;
-    text-align: center;
-  }
-
-  .days__day-name, .days__day-wrapper {
-    /*padding: 0.5rem;*/
-  }
-
-  .days__day-wrapper {
-    @include flex-center;
-    position: relative;
-    color: #5d5d5d;
-    width: 3rem;
-    height: 3rem;
-    box-sizing: border-box;
-
-    &--today {
-      border-radius: 50%;
-      border: 2px solid #00dbb1;
-    }
-
-    &--current-month {
-      color: red;
-    }
-  }
-
-  .days__day {
-   position: absolute;
-  }
-
-  .days__header, .days__day-list {
-    display: contents;
   }
 </style>

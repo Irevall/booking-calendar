@@ -1,25 +1,26 @@
 <template>
   <div class="app">
-    <app-booking  :price-per-day="pricePerDay"
-                  :rating="rating"
-                  :available-dates="availableDates"
-    />
+    <booking-view :booking="booking"/>
   </div>
 </template>
 
 <script>
-  import AppBooking from '@/components/app-booking'
+  import BookingView from '@/components/booking-view'
+  import { Booking } from '@/models/Booking'
 
   export default {
-    name: 'booking-calendar',
-    components: { AppBooking },
+    name: 'booking-app',
+    components: { BookingView },
     data () {
       return {
-        pricePerDay: 257,
-        rating: {
-          average: 4.35,
-          amount: 128,
-        },
+        booking: {},
+      }
+    },
+    created () {
+      const fakeApiResponse = new Booking({
+        pricePerDay: 298,
+        rating: 4.35,
+        voteCount: 123,
         availableDates: [
           new Date(2019, 8, 31),
           new Date(2019, 9, 2),
@@ -52,7 +53,9 @@
           new Date(2019, 10, 27),
           new Date(2019, 10, 30),
         ],
-      }
+      })
+
+      this.booking = fakeApiResponse
     }
   }
 </script>

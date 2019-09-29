@@ -1,7 +1,9 @@
 html {
-  font-family: 'Open Sans', sans-serif;
-  font-weight: 400;
+  font-family: 'Overpass', sans-serif;
+  font-weight: 700;
   font-size: 16px;
+  line-height: 0.95;
+  color: #474747;
 
   @include laptop {
     font-size: 14px;
