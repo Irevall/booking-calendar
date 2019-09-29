@@ -8,8 +8,16 @@
       <div class="booking-calendar__month-change booking-calendar__month-change--next" @click="selectNextMonth">
         <font-awesome-icon icon="chevron-right"/>
       </div>
+    </div>
 
-      <calendar-dates/>
+    <div class="booking-calendar__days">
+      <div class="booking-calendar__days-header">
+        <span class="booking-calendar__day-name" v-for="day in shortDayNames" :key="day">{{ day }}</span>
+      </div>
+
+      <div class="booking-calendar__list">
+        <calendar-day v-for="day in visibleDays" :key="day.dateUnix" v-bind="day"/>
+      </div>
     </div>
   </div>
 </template>
@@ -17,11 +25,14 @@
 <script>
   import { dayNames, monthNames } from '@/resources/Date'
   import { compareDates } from '@/helpers/date'
-  import CalendarDates from '@/components/calendar/calendar-dates'
+  import CalendarDay from '@/components/calendar/calendar-day'
 
   export default {
     name: 'booking-calendar',
-    components: { CalendarDates },
+    components: { CalendarDay },
+    props: {
+      availableDates: Array,
+    },
     data () {
       return {
         dateNow: new Date(),
@@ -72,17 +83,21 @@
           i <= this.selectedMonthLength + (6 - this.lastDayOfSelectedMonth.getDay());
           i++) {
           const date = new Date(this.selected.year, this.selected.month, i)
+          const dateUnix = date.getTime()
           days.push({
             date,
-            unix: date.getTime(),
+            dateUnix,
             isToday: compareDates(date, this.dateNow),
             isSameMonth: date.getMonth() === this.selected.month && date.getFullYear() === this.selected.year,
-            isAvailable: true,
+            isAvailable: this.availableDatesInUnix.includes(dateUnix)
           })
         }
 
         return days
-      }
+      },
+      availableDatesInUnix () {
+        return this.availableDates.map(date => date.getTime())
+      },
     },
     methods: {
       selectPreviousMonth () {
@@ -135,5 +150,21 @@
 
   .booking-calendar__current-month {
     color: white;
+  }
+
+  .booking-calendar__days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-row-gap: 0.5rem;
+    padding: 1rem 1.5rem;
+  }
+
+  .booking-calendar__day-name {
+    color: #808080;
+    text-align: center;
+  }
+
+  .booking-calendar__days-header, .booking-calendar__list {
+    display: contents;
   }
 </style>

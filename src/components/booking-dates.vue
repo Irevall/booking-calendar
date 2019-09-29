@@ -8,7 +8,7 @@
       <span  class="booking-dates__check booking-dates__check--out" :class="{ 'booking-dates__check--active': selected === 'out' }"
              @click="select('out')">Check Out</span>
 
-      <booking-calendar class="booking-dates__calendar" v-show="selected"/>
+      <booking-calendar class="booking-dates__calendar" :available-dates="availableDates" v-show="selected"/>
     </div>
   </div>
 </template>
