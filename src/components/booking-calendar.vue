@@ -4,7 +4,7 @@
       <div class="booking-calendar__month-change booking-calendar__month-change--previous" @click="selectPreviousMonth">
         <font-awesome-icon icon="chevron-left"/>
       </div>
-      <span class="booking-calendar__current-month">{{ `${selectedMonthString} ${selected.year}` }}</span>
+      <span class="booking-calendar__current-month">{{ `${selectedMonthString} ${selectedPeriod.year}` }}</span>
       <div class="booking-calendar__month-change booking-calendar__month-change--next" @click="selectNextMonth">
         <font-awesome-icon icon="chevron-right"/>
       </div>
@@ -38,7 +38,7 @@
     data () {
       return {
         dateNow: new Date(),
-        selected: {
+        selectedPeriod: {
           year: null,
           month: null,
         },
@@ -46,29 +46,27 @@
     },
     computed: {
       // TODO: trim computed
-      // TODO: props.availableDates. map to unix, so it's quicker to compare (just .includes())...
-      // or rethink it, since compareDates is already pretty efficient, so for loop shouldn't take much longer?
 
       previousMonth () {
         return {
-          year: this.selected.year - (this.selected.month ? 0 : 1),
-          month: this.selected.month ? this.selected.month - 1 : 11
+          year: this.selectedPeriod.year - (this.selectedPeriod.month ? 0 : 1),
+          month: this.selectedPeriod.month ? this.selectedPeriod.month - 1 : 11
         }
       },
       nextMonth () {
         return {
-          year: this.selected.year + (this.selected.month < 11 ? 0 : 1),
-          month: this.selected.month < 11 ? this.selected.month + 1 : 0
+          year: this.selectedPeriod.year + (this.selectedPeriod.month < 11 ? 0 : 1),
+          month: this.selectedPeriod.month < 11 ? this.selectedPeriod.month + 1 : 0
         }
       },
       shortDayNames () {
         return dayNames.map(day => day.slice(0, 3))
       },
       selectedMonthString () {
-        return monthNames[this.selected.month]
+        return monthNames[this.selectedPeriod.month]
       },
       firstDayOfSelectedMonth () {
-        return new Date(this.selected.year, this.selected.month, 1)
+        return new Date(this.selectedPeriod.year, this.selectedPeriod.month, 1)
       },
       lastDayOfSelectedMonth () {
         return new Date(this.nextMonth.year, this.nextMonth.month, 0)
@@ -83,15 +81,16 @@
         for (let i = 1 - this.firstDayOfSelectedMonth.getDay();
           i <= this.selectedMonthLength + (6 - this.lastDayOfSelectedMonth.getDay());
           i++) {
-          const date = new Date(this.selected.year, this.selected.month, i)
+          const date = new Date(this.selectedPeriod.year, this.selectedPeriod.month, i)
           const dateUnix = date.getTime()
           days.push({
             date,
             dateUnix,
             isToday: compareDates(date, this.dateNow),
-            isSameMonth: date.getMonth() === this.selected.month && date.getFullYear() === this.selected.year,
+            isSameMonth: date.getMonth() === this.selectedPeriod.month && date.getFullYear() === this.selectedPeriod.year,
             isAvailable: this.availableDatesInUnix.includes(dateUnix),
-            isCheck: compareDates(date, this.checkIn) || compareDates(date, this.checkOut),
+            isCheckIn: compareDates(date, this.checkIn),
+            isCheckOut: compareDates(date, this.checkOut),
             isBetweenChecks: date > this.checkIn && date < this.checkOut
           })
         }
@@ -104,10 +103,10 @@
     },
     methods: {
       selectPreviousMonth () {
-        this.selected = this.previousMonth
+        this.selectedPeriod = this.previousMonth
       },
       selectNextMonth () {
-        this.selected = this.nextMonth
+        this.selectedPeriod = this.nextMonth
       },
       registerDayClick (day) {
         if (!day.isAvailable || !day.isSameMonth) return
@@ -116,8 +115,8 @@
       }
     },
     created () {
-      this.selected.year = this.dateNow.getFullYear()
-      this.selected.month = this.dateNow.getMonth()
+      this.selectedPeriod.year = this.dateNow.getFullYear()
+      this.selectedPeriod.month = this.dateNow.getMonth()
     }
   }
 </script>

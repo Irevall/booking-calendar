@@ -7,6 +7,14 @@ import App from '@/App.vue'
 Vue.use(Vue2TouchEvents)
 Vue.use(icons)
 
+Vue.filter('date', function (date) {
+  return date.toLocaleString('en-GB', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
+})
+
 Vue.config.productionTip = false
 
 export const app = new Vue({

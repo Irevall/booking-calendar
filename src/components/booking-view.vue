@@ -1,6 +1,6 @@
 <template>
   <div class="booking-view">
-    <booking-header :price-per-day="booking.pricePerDay" :rating="booking.rating" :vote-count="booking.voteCount"/>
+    <booking-header :price-per-day="booking.pricePerDay" :rating="booking.rating" :vote-count="booking.voteCount" />
 
     <div class="booking-view__separator"></div>
 
@@ -29,6 +29,7 @@
         desiredDates: {
           checkIn: null,
           checkOut: null,
+          dayCount: 0,
         },
       }
     },

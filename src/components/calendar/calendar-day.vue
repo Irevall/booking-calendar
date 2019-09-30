@@ -2,7 +2,10 @@
   <div class="calendar-day"
        :class="{  'calendar-day--today': isToday,
                   'calendar-day--unavailable': !isAvailable,
-                  'calendar-day--different-month': !isSameMonth
+                  'calendar-day--different-month': !isSameMonth,
+                  'calendar-day--check-in': isCheckIn,
+                  'calendar-day--check-out': isCheckOut,
+                  'calendar-day--between-checks': isBetweenChecks,
               }"
       @click="hijackClick"
   >
@@ -21,6 +24,9 @@
       isToday: Boolean,
       isSameMonth: Boolean,
       isAvailable: Boolean,
+      isCheckIn: Boolean,
+      isCheckOut: Boolean,
+      isBetweenChecks: Boolean,
     },
     methods: {
       hijackClick () {
@@ -41,8 +47,11 @@
     cursor: pointer;
 
     &--today {
-      border-radius: 50%;
-      border: 2px solid #00dbb1;
+      > .calendar-day__date {
+        color: #00dbb1;
+        border: 2px solid #00dbb1;
+      }
+
     }
 
     &--unavailable {
@@ -54,9 +63,38 @@
       color: #737373;
       cursor: default;
     }
+
+    &--check-in, &--check-out {
+      color: white;
+      background: #92fef5;
+
+      > .calendar-day__date {
+        background: #00dbb1;
+      }
+    }
+
+    &--check-in {
+      border-bottom-left-radius: 50%;
+      border-top-left-radius: 50%;
+    }
+
+    &--check-out {
+      border-bottom-right-radius: 50%;
+      border-top-right-radius: 50%;
+    }
+
+    &--between-checks {
+      color: #00dbb1;
+      background: #92fef5;
+    }
   }
 
   .calendar-day__date {
+    @include flex-center;
     position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    box-sizing: border-box;
   }
 </style>
