@@ -1,19 +1,20 @@
 <template>
   <div class="booking-dates">
     <span class="booking-dates__label">Dates</span>
-    <div class="booking-dates__checked">
+    <div class="booking-dates__checks" :class="{ 'booking-dates__checks--checked': checkIn && checkOut }">
       <span class="booking-dates__check booking-dates__check--in"
-            :class="{ 'booking-dates__check--active': selectedType === 'checkIn' }"
-            @click="selectType('checkIn')">{{(checkIn ? checkIn : 'Check In') | date }}</span>
+            :class="{ 'booking-dates__check--active': checkIn }"
+            @click="toggleActive">{{(checkIn ? checkIn : 'Check In') | date }}</span>
       <font-awesome-icon class="booking-dates__check-separator" icon="angle-double-right"/>
       <span class="booking-dates__check booking-dates__check--out"
-            :class="{ 'booking-dates__check--active': selectedType === 'checkOut' }"
-            @click="selectType('checkOut')">{{(checkOut ? checkOut : 'Check Out') | date }}</span>
+            :class="{ 'booking-dates__check--active': checkOut }"
+            @click="toggleActive">{{(checkOut ? checkOut : 'Check Out') | date }}</span>
 
       <booking-calendar class="booking-dates__calendar"
-                        :available-dates="availableDates" :check-in="$attrs.value.checkIn"
-                        :check-out="$attrs.value.checkOut"
-                        @select-date="applyDateSelection" v-show="selectedType"/>
+                        :available-dates="availableDates"
+                        :check-in="checkIn" :earliest-check-in="earliestCheckIn"
+                        :check-out="checkOut" :latest-check-out="latestCheckOut"
+                        @select-date="applyDateSelection" v-show="isActive"/>
     </div>
   </div>
 </template>
@@ -31,7 +32,7 @@
     },
     data () {
       return {
-        selectedType: null,
+        isActive: false,
       }
     },
     computed: {
@@ -40,58 +41,88 @@
       },
       checkOut () {
         return this.$attrs.value.checkOut
+      },
+      latestCheckOut () {
+        if (!this.checkIn && !this.checkIn) return this.availableDates[this.availableDates.length - 1]
+
+        const anyCheck = this.checkOut || this.checkIn
+
+        const availableCheckOuts = this.availableDates.filter(date => date >= anyCheck)
+
+        const checkInYear = anyCheck.getFullYear()
+        const checkInMonth = anyCheck.getMonth()
+        const checkInDate = anyCheck.getDate()
+
+        let i = 1
+
+        while (compareDates(new Date(checkInYear, checkInMonth, checkInDate + i), availableCheckOuts[i])) {
+          i++
+        }
+
+        return availableCheckOuts[i - 1]
+      },
+      earliestCheckIn () {
+        if (!this.checkIn && !this.checkOut) return this.availableDates[0]
+
+        const anyCheck = this.checkIn || this.checkOut
+
+        const availableCheckIns = this.availableDates.filter(date => date <= anyCheck).sort((a, b) => b - a)
+
+        const availableCheckInsLength = availableCheckIns.length
+
+        const checkOutYear = anyCheck.getFullYear()
+        const checkOutMonth = anyCheck.getMonth()
+        const checkOutDate = anyCheck.getDate()
+
+        let i = 1
+
+        console.log('pre loop')
+        console.log(availableCheckIns)
+        console.log(new Date(checkOutYear, checkOutMonth, checkOutDate - i))
+        console.log(availableCheckIns[i])
+        while (compareDates(new Date(checkOutYear, checkOutMonth, checkOutDate - i), availableCheckIns[i])) {
+          i++
+        }
+
+        return availableCheckIns[i - 1]
       }
-    },
+    }
+    ,
     methods: {
-      selectType (type) {
-        if (type === this.selectedType) return this.selectedType = null
-        this.selectedType = type
+      toggleActive () {
+        setImmediate(() => this.isActive = !this.isActive)
       },
       applyDateSelection (date) {
-        let possibleCheckIn = this.checkIn
-        let possibleCheckOut = this.checkOut
+        if (date < this.earliestCheckIn || date > this.latestCheckOut) return
+        if (this.checkIn && date < this.checkIn) return
+        if (this.checkOut && date > this.checkOut) return
 
-        if (!this.checkIn || this.selectedType === 'checkIn' && date <= this.checkOut) possibleCheckIn = date
-        if (!this.checkOut || this.selectedType === 'checkOut' && date >= this.checkIn) possibleCheckOut = date
-
-        if (this.selectedType === 'checkIn') this.selectedType = 'checkOut'
-
-        if (possibleCheckIn === this.checkIn && possibleCheckOut === this.checkOut) {
-          console.log('same date')
-          return
-        }
-
-
-        const daysBetween = this.checkIfAllDatesAvailable(possibleCheckIn, possibleCheckOut)
-        if (daysBetween === null) {
-          console.log('cant do that chief')
-          return this.$emit('input', { checkIn: date, checkOut: date, dayCount: 1 })
-        }
-
-        console.log('im so far')
-        return this.$emit('input', { checkIn: possibleCheckIn, checkOut: possibleCheckOut, dayCount: daysBetween })
-      },
-      checkIfAllDatesAvailable (possibleCheckIn, possibleCheckOut) {
-        const possibleCheckInDate = possibleCheckIn.getDate()
-        let dateToCheck = new Date(possibleCheckIn)
-
-        const availableDatesBetween = this.availableDates.filter(date => {
-          return date >= possibleCheckIn && date <= possibleCheckOut
+        if (!this.checkIn && (!this.checkOut || date < this.checkOut)) return this.$emit('input', {
+          checkIn: date,
+          checkOut: this.checkOut
         })
-        console.log('available dates:')
-        console.log(availableDatesBetween)
 
+        if (!this.checkOut && (!this.checkIn || date > this.checkIn)) return this.$emit('input', {
+          checkIn: this.checkIn,
+          checkOut: date
+        })
 
-        let i = 0
-        while (possibleCheckOut && dateToCheck < possibleCheckOut) {
-          if (!compareDates(dateToCheck, availableDatesBetween[i])) {
-            return null
-          }
+        if (compareDates(this.checkIn, date) && compareDates(this.checkOut, date)) return this.$emit('input', {
+          checkIn: null,
+          checkOut: null
+        })
 
-          i++
-          dateToCheck.setDate(possibleCheckInDate + i)
-        }
-        return availableDatesBetween.length
+        if (compareDates(this.checkIn, date) && this.checkOut) return this.$emit('input', {
+          checkIn: null,
+          checkOut: this.checkOut
+        })
+
+        if (compareDates(this.checkOut, date) && this.checkIn) return this.$emit('input', {
+          checkIn: this.checkIn,
+          checkOut: null
+        })
+
+        if (!this.checkIn || !this.checkOut) return this.$emit('input', { checkIn: date, checkOut: date })
       }
     }
   }
@@ -102,7 +133,7 @@
     font-weight: 800;
   }
 
-  .booking-dates__checked {
+  .booking-dates__checks {
     position: relative;
     display: flex;
     justify-content: space-between;
@@ -111,21 +142,23 @@
     border: 1px solid #b4b4b4;
     padding: 0.5rem;
     font-size: 1.35rem;
+    cursor: pointer;
+
+    transition: background-color .3s ease-out;
+
+    &--checked {
+      background: #aee7e4;
+    }
   }
 
   .booking-dates__check {
     @include flex-center;
-    min-width: 115px;
+    min-width: 125px;
     padding: 0.5rem 1rem;
-    cursor: pointer;
     transition: background-color .3s ease-out;
 
-    &:hover:not(&--active) {
-      background: #b2ebe8;
-    }
-
     &--active {
-      background: #a1d9d6;
+      background: #aee7e4;
     }
   }
 

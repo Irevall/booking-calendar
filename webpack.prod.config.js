@@ -6,6 +6,7 @@ delete config.devServer
 
 config.mode = 'production'
 config.devtool = 'source-map'
+config.output.publicPath = '/booking-calendar/'
 
 config.optimization = {
   minimizer: [new TerserPlugin()],

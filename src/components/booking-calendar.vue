@@ -1,5 +1,7 @@
 <template>
   <div class="booking-calendar">
+    <div class="test" @click.exact="test"></div>
+
     <div class="booking-calendar__header">
       <div class="booking-calendar__month-change booking-calendar__month-change--previous" @click="selectPreviousMonth">
         <font-awesome-icon icon="chevron-left"/>
@@ -16,9 +18,12 @@
       </div>
 
       <div class="booking-calendar__list">
-        <calendar-day v-for="day in visibleDays" :key="day.dateUnix" v-bind="day" @inner-click="registerDayClick(day)"/>
+        <calendar-day v-for="day in visibleDays" :key="day.dateUnix" v-bind="day"
+                      @inner-click="registerDayClick(day)" @inner-hover="registerDayHover(day)"/>
       </div>
     </div>
+
+
   </div>
 </template>
 
@@ -33,7 +38,9 @@
     props: {
       availableDates: Array,
       checkIn: Date,
+      earliestCheckIn: Date,
       checkOut: Date,
+      latestCheckOut: Date,
     },
     data () {
       return {
@@ -42,6 +49,7 @@
           year: null,
           month: null,
         },
+        hoveredDay: null,
       }
     },
     computed: {
@@ -91,7 +99,10 @@
             isAvailable: this.availableDatesInUnix.includes(dateUnix),
             isCheckIn: compareDates(date, this.checkIn),
             isCheckOut: compareDates(date, this.checkOut),
-            isBetweenChecks: date > this.checkIn && date < this.checkOut
+            isPotentialCheckIn: compareDates(date, this.potentialCheckIn),
+            isPotentialCheckOut: compareDates(date, this.potentialCheckOut),
+            isBetweenChecks: (this.checkIn && date  > this.checkIn || this.potentialCheckIn && date > this.potentialCheckIn)
+              && (this.checkOut && date < this.checkOut || this.potentialCheckOut && date < this.potentialCheckOut)
           })
         }
 
@@ -100,6 +111,16 @@
       availableDatesInUnix () {
         return this.availableDates.map(date => date.getTime())
       },
+      potentialCheckIn () {
+        if (this.checkIn || !this.checkOut || this.hoveredDay >= this.checkOut) return null
+        if (this.hoveredDay < this.earliestCheckIn) return this.earliestCheckIn
+        return this.hoveredDay
+      },
+      potentialCheckOut () {
+        if (this.checkOut || !this.checkIn || this.hoveredDay <= this.checkIn) return null
+        if (this.hoveredDay > this.latestCheckOut) return this.latestCheckOut
+        return this.hoveredDay
+      }
     },
     methods: {
       selectPreviousMonth () {
@@ -109,9 +130,12 @@
         this.selectedPeriod = this.nextMonth
       },
       registerDayClick (day) {
-        if (!day.isAvailable || !day.isSameMonth) return
+        if (!day.isAvailable) return
 
         this.$emit('select-date', day.date)
+      },
+      registerDayHover (day) {
+        this.hoveredDay = day.date
       }
     },
     created () {
@@ -165,5 +189,15 @@
 
   .booking-calendar__days-header, .booking-calendar__list {
     display: contents;
+  }
+
+  .test {
+    position: fixed;
+    left: 0;
+    top: 0;
+    /*background: red;*/
+    width: 100%;
+    height: 100%;
+    z-index: -1;
   }
 </style>

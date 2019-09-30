@@ -1,13 +1,16 @@
 <template>
   <div class="calendar-day"
        :class="{  'calendar-day--today': isToday,
-                  'calendar-day--unavailable': !isAvailable,
                   'calendar-day--different-month': !isSameMonth,
+                  'calendar-day--unavailable': !isAvailable,
                   'calendar-day--check-in': isCheckIn,
+                  'calendar-day--potential-check-in': isPotentialCheckIn,
                   'calendar-day--check-out': isCheckOut,
+                  'calendar-day--potential-check-out': isPotentialCheckOut,
                   'calendar-day--between-checks': isBetweenChecks,
               }"
-      @click="hijackClick"
+       @click="hijackClick"
+       @mouseenter="hijackHover"
   >
     <div class="calendar-day__date">
       {{ date.getDate() }}
@@ -26,11 +29,16 @@
       isAvailable: Boolean,
       isCheckIn: Boolean,
       isCheckOut: Boolean,
+      isPotentialCheckIn: Boolean,
+      isPotentialCheckOut: Boolean,
       isBetweenChecks: Boolean,
     },
     methods: {
       hijackClick () {
         this.$emit('inner-click')
+      },
+      hijackHover () {
+        this.$emit('inner-hover')
       }
     }
   }
@@ -51,16 +59,20 @@
         color: #00dbb1;
         border: 2px solid #00dbb1;
       }
+    }
 
+    /*&:hover:not(&--unavailable) {*/
+    /*  > .calendar-day__date {*/
+    /*    background: #92fef5;*/
+    /*  }*/
+    /*}*/
+
+    &--different-month {
+      color: #737373;
     }
 
     &--unavailable {
       color: #b6b6b6;
-      cursor: default;
-    }
-
-    &--different-month {
-      color: #737373;
       cursor: default;
     }
 
@@ -79,6 +91,28 @@
     }
 
     &--check-out {
+      border-bottom-right-radius: 50%;
+      border-top-right-radius: 50%;
+    }
+
+    &--potential-check-in, &--potential-check-out {
+      color: #00dbb1;
+      background: #92fef5;
+
+      &:hover {
+        color: white;
+        > .calendar-day__date {
+          background: #00dbb1;
+        }
+      }
+    }
+
+    &--potential-check-in {
+      border-bottom-left-radius: 50%;
+      border-top-left-radius: 50%;
+    }
+
+    &--potential-check-out {
       border-bottom-right-radius: 50%;
       border-top-right-radius: 50%;
     }

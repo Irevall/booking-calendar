@@ -6,9 +6,7 @@
 
     <booking-dates
       :available-dates="booking.availableDates"
-      v-model="desiredDates"
-      @new-dates="updateDates"
-    />
+      v-model="desiredDates"/>
   </div>
 </template>
 
@@ -29,15 +27,13 @@
         desiredDates: {
           checkIn: null,
           checkOut: null,
-          dayCount: 0,
         },
       }
     },
-    methods: {
-      updateDates (input) {
-        const { checkIn, checkOut } = input
-        console.log(checkIn)
-        console.log(checkOut)
+    computed: {
+      daysChecked () {
+        if (!this.desiredDates.checkIn || !this.desiredDates.checkOut) return 0
+        return Math.ceil((this.desiredDates.checkOut.getTime() - this.desiredDates.checkIn.getTime()) / 24 / 60 / 60 / 1000) + 1
       }
     }
   }
