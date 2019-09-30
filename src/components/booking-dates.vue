@@ -1,20 +1,20 @@
 <template>
   <div class="booking-dates">
     <span class="booking-dates__label">Dates</span>
-    <div class="booking-dates__checks" :class="{ 'booking-dates__checks--checked': checkIn && checkOut }">
-      <span class="booking-dates__check booking-dates__check--in"
-            :class="{ 'booking-dates__check--active': checkIn }"
-            @click="toggleActive">{{(checkIn ? checkIn : 'Check In') | date }}</span>
+    <div class="booking-dates__checks" :class="{ 'booking-dates__checks--checked': isActive && checkIn && checkOut }" @click="toggleActive(true)">
+      <span class="booking-dates__check booking-dates__check--in">
+        {{(checkIn ? checkIn : 'Check In') | date }}
+      </span>
       <font-awesome-icon class="booking-dates__check-separator" icon="angle-double-right"/>
-      <span class="booking-dates__check booking-dates__check--out"
-            :class="{ 'booking-dates__check--active': checkOut }"
-            @click="toggleActive">{{(checkOut ? checkOut : 'Check Out') | date }}</span>
+      <span class="booking-dates__check booking-dates__check--out">
+        {{(checkOut ? checkOut : 'Check Out') | date }}
+      </span>
 
       <booking-calendar class="booking-dates__calendar"
                         :available-dates="availableDates"
                         :check-in="checkIn" :earliest-check-in="earliestCheckIn"
                         :check-out="checkOut" :latest-check-out="latestCheckOut"
-                        @select-date="applyDateSelection" v-show="isActive"/>
+                        @select-date="applyDateSelection" @hide="toggleActive(false)" v-show="isActive"/>
     </div>
   </div>
 </template>
@@ -68,18 +68,12 @@
 
         const availableCheckIns = this.availableDates.filter(date => date <= anyCheck).sort((a, b) => b - a)
 
-        const availableCheckInsLength = availableCheckIns.length
-
         const checkOutYear = anyCheck.getFullYear()
         const checkOutMonth = anyCheck.getMonth()
         const checkOutDate = anyCheck.getDate()
 
         let i = 1
 
-        console.log('pre loop')
-        console.log(availableCheckIns)
-        console.log(new Date(checkOutYear, checkOutMonth, checkOutDate - i))
-        console.log(availableCheckIns[i])
         while (compareDates(new Date(checkOutYear, checkOutMonth, checkOutDate - i), availableCheckIns[i])) {
           i++
         }
@@ -89,8 +83,8 @@
     }
     ,
     methods: {
-      toggleActive () {
-        setImmediate(() => this.isActive = !this.isActive)
+      toggleActive (state) {
+        setImmediate(() => this.isActive = state)
       },
       applyDateSelection (date) {
         if (date < this.earliestCheckIn || date > this.latestCheckOut) return
@@ -147,7 +141,7 @@
     transition: background-color .3s ease-out;
 
     &--checked {
-      background: #aee7e4;
+      background: #cef1f1;
     }
   }
 
@@ -156,10 +150,6 @@
     min-width: 125px;
     padding: 0.5rem 1rem;
     transition: background-color .3s ease-out;
-
-    &--active {
-      background: #aee7e4;
-    }
   }
 
   .booking-dates__check-separator {

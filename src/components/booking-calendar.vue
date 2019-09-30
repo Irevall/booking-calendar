@@ -1,7 +1,5 @@
 <template>
   <div class="booking-calendar">
-    <div class="test" @click.exact="test"></div>
-
     <div class="booking-calendar__header">
       <div class="booking-calendar__month-change booking-calendar__month-change--previous" @click="selectPreviousMonth">
         <font-awesome-icon icon="chevron-left"/>
@@ -23,7 +21,7 @@
       </div>
     </div>
 
-
+    <div class="test" @click.exact="backgroundClicked"></div>
   </div>
 </template>
 
@@ -50,6 +48,7 @@
           month: null,
         },
         hoveredDay: null,
+        mouseOverCalendar: false,
       }
     },
     computed: {
@@ -101,7 +100,7 @@
             isCheckOut: compareDates(date, this.checkOut),
             isPotentialCheckIn: compareDates(date, this.potentialCheckIn),
             isPotentialCheckOut: compareDates(date, this.potentialCheckOut),
-            isBetweenChecks: (this.checkIn && date  > this.checkIn || this.potentialCheckIn && date > this.potentialCheckIn)
+            isBetweenChecks: (this.checkIn && date > this.checkIn || this.potentialCheckIn && date > this.potentialCheckIn)
               && (this.checkOut && date < this.checkOut || this.potentialCheckOut && date < this.potentialCheckOut)
           })
         }
@@ -136,6 +135,9 @@
       },
       registerDayHover (day) {
         this.hoveredDay = day.date
+      },
+      backgroundClicked () {
+        this.$emit('hide')
       }
     },
     created () {
@@ -162,6 +164,11 @@
     padding: 1rem 1.5rem;
     background: #00dbb1;
     font-size: 1.5rem;
+
+  }
+
+  .booking-calendar__header, .booking-calendar__days {
+    z-index: 2;
   }
 
   .booking-calendar__month-change {
@@ -195,9 +202,8 @@
     position: fixed;
     left: 0;
     top: 0;
-    /*background: red;*/
     width: 100%;
     height: 100%;
-    z-index: -1;
+    z-index: 1;
   }
 </style>
