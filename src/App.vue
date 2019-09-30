@@ -66,8 +66,9 @@
   .app {
     display: grid;
     justify-content: center;
-    align-items: center;
+    align-items: start;
     min-height: 100vh;
+    padding: 4rem;
     background: #ececec;
   }
 </style>

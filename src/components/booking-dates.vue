@@ -1,21 +1,24 @@
 <template>
   <div class="booking-dates">
     <span class="booking-dates__label">Dates</span>
+
     <div class="booking-dates__checks" :class="{ 'booking-dates__checks--checked': isActive && checkIn && checkOut }" @click="toggleActive(true)">
       <span class="booking-dates__check booking-dates__check--in">
         {{(checkIn ? checkIn : 'Check In') | date }}
       </span>
+
       <font-awesome-icon class="booking-dates__check-separator" icon="angle-double-right"/>
+
       <span class="booking-dates__check booking-dates__check--out">
         {{(checkOut ? checkOut : 'Check Out') | date }}
       </span>
-
-      <booking-calendar class="booking-dates__calendar"
-                        :available-dates="availableDates"
-                        :check-in="checkIn" :earliest-check-in="earliestCheckIn"
-                        :check-out="checkOut" :latest-check-out="latestCheckOut"
-                        @select-date="applyDateSelection" @hide="toggleActive(false)" v-show="isActive"/>
     </div>
+
+    <booking-calendar class="booking-dates__calendar"
+                      :available-dates="availableDates"
+                      :check-in="checkIn" :earliest-check-in="earliestCheckIn"
+                      :check-out="checkOut" :latest-check-out="latestCheckOut"
+                      @select-date="applyDateSelection" @hide="toggleActive(false)" v-show="isActive"/>
   </div>
 </template>
 
@@ -123,12 +126,16 @@
 </script>
 
 <style lang=scss>
+  .booking-dates {
+    position: relative;
+  }
+
   .booking-dates__label {
     font-weight: 800;
+
   }
 
   .booking-dates__checks {
-    position: relative;
     display: flex;
     justify-content: space-between;
     align-items: center;
